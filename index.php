@@ -68,6 +68,9 @@
 								echo $serverName;
 							echo '</a></li>';
 						}
+						echo '<li><a href="#">';
+							echo '';
+						echo '</a></li>';
 						?>
 					</ul>
 				</div> <!-- dropdown -->
@@ -75,8 +78,8 @@
 		</div> <!-- row -->
 
 		<div class="row">
-			<div class="col-md-12">
-				<canvas id="serverChart" width="100" height="50"></canvas>
+			<div class="col-md-12" id="div-for-chart">
+				<canvas id="server-chart" width="100" height="50"></canvas>
 			</div>
 		</div>
 	</div> <!-- container -->
@@ -101,7 +104,7 @@
 					success:function(result) {
 						if (result.warningMessage) {
 							// if error
-							$('#serverChart').replaceWith(result.warningMessage);
+							$('#server-chart').replaceWith(result.warningMessage);
 						} else {
 
 							var xlabels = [];
@@ -110,7 +113,16 @@
 								xlabels.push(key);
 								graphResults.push(result.stats[key]);
 							}
-							var ctx = document.getElementById("serverChart");
+							if ($('#stats-warning').length) {
+								// if it is currently an warning message
+								$('#stats-warning').replaceWith('<canvas id="server-chart" width="100" height="50"></canvas>');
+							} else if ($('#server-chart').length) {
+								//remove the old chart before starting a new one, otherwise the canvas flickers with old data
+								$('#div-for-chart').html('');
+								$('#div-for-chart').append('<canvas id="server-chart" width="100" height="50"></canvas>');
+							}
+							ctx = document.getElementById("server-chart");
+
 							var myChart = new Chart(ctx, {
 							  type: 'line',
 							  data: {
