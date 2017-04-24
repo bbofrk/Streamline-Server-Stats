@@ -22,28 +22,52 @@
 
 	<?php
 	class Server {
-		public $serverName;
-		public $apiUrl = 'https://services.mysublime.net/st4ts/data/get/type/iq/server/';
+		public $serverName, $warningMessage;
 		public $stats = [];
+		private $apiUrl = 'https://services.mysublime.net/st4ts/data/get/type/iq/server/';
 		public function __construct($serverName) {
 			$this->serverName = $serverName;
 		}
 
 		public function getStats() {
-			$tmpServerStats = json_decode(file_get_contents($apiUrl.$serverName.'/'), true);
-			foreach ($tmpServerStats as $tmpServerStat)
-				$this->stats[$tmpServerStat['data_label']] = $tmpServerStat['data_value'];
-
+			//use @ to suppress errors
+			$tmpContent = @file_get_contents($apiUrl.$serverName.'/');
+			if ($tmpContent !== false) {
+				$tmpServerStats = json_decode($tmpContent, true);
+				foreach ($tmpServerStats as $tmpServerStat) {
+					$this->stats[$tmpServerStat['data_label']] = $tmpServerStat['data_value'];
+				}
+			}
+			else {
+				$this->warningMessage = '<div class="alert alert-warning"><strong>No stats for the server!</strong></div>';
+			}
 			return $this->stats;
 		}
 	}
 
-	$returnServers = json_decode(file_get_contents('https://services.mysublime.net/st4ts/data/get/type/servers/'), true);
+	//use @ to suppress errors
+	$tmpServers = @file_get_contents('https://services.mysublime.net/st4ts/data/get/type/servers/');
+	if ($tmpServers === false) {
+		//if there is no servers from the api
+		?>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="alert alert-danger"><strong>No servers from the api</strong></div>
+				</div>
+			</div>
+		</div>
+		<?php
+		exit();
+	} else {
+		$returnServers = json_decode($tmpServers, true);
+	}
 
 	$servers = [];
 	foreach ($returnServers as $i => $tmpArray) {
-		foreach ($tmpArray as $serverName)
+		foreach ($tmpArray as $serverName) {
 			$servers[$i] = new Server($serverName);
+		}
 	}
 
 	?>
@@ -62,9 +86,9 @@
 					<ul class="dropdown-menu">
 						<?php
 						foreach ($servers as $server) {
-							print '<li><a href="#">';
-								print $server->serverName;
-							print '</a></li>';
+							echo '<li><a href="#">';
+								echo $server->serverName;
+							echo '</a></li>';
 						}
 						?>
 					</ul>
@@ -76,10 +100,10 @@
 	<script type="text/javascript">
 		//Change the text based on the selection
 		$(function(){
-			$(".dropdown-menu li a").click(function(){
+			$(".dropdown-menu li a").on('click', function() {
 				$(".btn:first-child").text($(this).text());
 				$(".btn:first-child").val($(this).text());
-		 });
+			});
 		});
 	</script>
 </body>
