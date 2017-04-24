@@ -86,7 +86,8 @@
 	<script type="text/javascript">
 		//Change the text based on the selection
 		$(function(){
-			$(".dropdown-menu li a").on('click', function() {
+			$(".dropdown-menu li a").on('click', function(e) {
+				e.preventDefault();
 				var selectedName = $(this).text();
 				//make sure that the selection shows up as selected
 				$(".btn:first-child").text(selectedName);
