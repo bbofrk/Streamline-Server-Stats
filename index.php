@@ -117,7 +117,9 @@
 							    datasets: [{
 										label: '',
 							      data: graphResults,
-							      backgroundColor: "rgba(153,255,51,0.4)"
+							      backgroundColor: "rgba(153,255,51,0.4)",
+										fill: false,
+										lineTension: 0 
 							    }]
 							  }
 							});
