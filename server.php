@@ -9,17 +9,21 @@ class Server {
 
 	public function getStats() {
 		//use @ to suppress errors
-		$tmpContent = @file_get_contents($apiUrl.$serverName.'/');
-		if ($tmpContent !== false) {
+		$tmpContent = @file_get_contents($this->apiUrl.$this->serverName.'/');
+		if ($tmpContent === false || $tmpContent == '[]') {
+			$this->warningMessage = '<div class="alert alert-warning"><strong>No stats for the server!</strong></div>';
+		}
+		else {
 			$tmpServerStats = json_decode($tmpContent, true);
 			foreach ($tmpServerStats as $tmpServerStat) {
 				$this->stats[$tmpServerStat['data_label']] = $tmpServerStat['data_value'];
 			}
 		}
-		else {
-			$this->warningMessage = '<div class="alert alert-warning"><strong>No stats for the server!</strong></div>';
-		}
-		return $this->stats;
 	}
 }
+
+$server = new Server($_POST['name']);
+$server->getStats();
+echo json_encode($server);
+
 ?>

@@ -21,29 +21,7 @@
 <body>
 
 	<?php
-	class Server {
-		public $serverName, $warningMessage;
-		public $stats = [];
-		private $apiUrl = 'https://services.mysublime.net/st4ts/data/get/type/iq/server/';
-		public function __construct($serverName) {
-			$this->serverName = $serverName;
-		}
 
-		public function getStats() {
-			//use @ to suppress errors
-			$tmpContent = @file_get_contents($apiUrl.$serverName.'/');
-			if ($tmpContent !== false) {
-				$tmpServerStats = json_decode($tmpContent, true);
-				foreach ($tmpServerStats as $tmpServerStat) {
-					$this->stats[$tmpServerStat['data_label']] = $tmpServerStat['data_value'];
-				}
-			}
-			else {
-				$this->warningMessage = '<div class="alert alert-warning"><strong>No stats for the server!</strong></div>';
-			}
-			return $this->stats;
-		}
-	}
 
 	//use @ to suppress errors
 	$tmpServers = @file_get_contents('https://services.mysublime.net/st4ts/data/get/type/servers/');
@@ -66,7 +44,7 @@
 	$servers = [];
 	foreach ($returnServers as $i => $tmpArray) {
 		foreach ($tmpArray as $serverName) {
-			$servers[$i] = new Server($serverName);
+			$servers[] = $serverName;
 		}
 	}
 
@@ -82,12 +60,12 @@
 		<div class="row">
 			<div class="col-md-4 col-md-offset-4">
 				<div class="dropdown">
-					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Servers  <span class="caret"></span></button>
+					<button id="server-selection"class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Servers  <span class="caret"></span></button>
 					<ul class="dropdown-menu">
 						<?php
-						foreach ($servers as $server) {
+						foreach ($servers as $serverName) {
 							echo '<li><a href="#">';
-								echo $server->serverName;
+								echo $serverName;
 							echo '</a></li>';
 						}
 						?>
@@ -95,16 +73,59 @@
 				</div> <!-- dropdown -->
 			</div> <!-- col -->
 		</div> <!-- row -->
+
+		<div class="row">
+			<div class="col-md-12">
+				<canvas id="serverChart" width="100" height="50"></canvas>
+			</div>
+		</div>
 	</div> <!-- container -->
 
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.min.js"></script>
 	<script type="text/javascript">
 		//Change the text based on the selection
 		$(function(){
 			$(".dropdown-menu li a").on('click', function() {
-				$(".btn:first-child").text($(this).text());
-				$(".btn:first-child").val($(this).text());
+				var selectedName = $(this).text();
+				//make sure that the selection shows up
+				$(".btn:first-child").text(selectedName);
+				$(".btn:first-child").val(selectedName);
+				//ajax call
+				$.ajax({
+					type: 'POST',
+					url: './server.php',
+					data: {name: selectedName},
+					dataType: 'json',
+					success:function(result) {
+						if (result.warningMessage) {
+							// if error
+							$('#serverChart').replaceWith(result.warningMessage);
+						} else {
+							var ctx = document.getElementById("serverChart");
+							var myChart = new Chart(ctx, {
+							  type: 'line',
+							  data: {
+							    labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
+							    datasets: [{
+							      label: 'apples',
+							      data: [12, 19, 3, 17, 6, 3, 7],
+							      backgroundColor: "rgba(153,255,51,0.4)"
+							    }, {
+							      label: 'oranges',
+							      data: [2, 29, 5, 5, 2, 3, 10],
+							      backgroundColor: "rgba(255,153,0,0.4)"
+							    }]
+							  }
+							});
+						}
+	       	},
+	       	error:function(exception){alert('Exeption:'+exception);}
+				});
 			});
 		});
+
+
 	</script>
 </body>
 </html>
