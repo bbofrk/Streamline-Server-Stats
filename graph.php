@@ -102,19 +102,22 @@
 							// if error
 							$('#serverChart').replaceWith(result.warningMessage);
 						} else {
+
+							var xlabels = [];
+							var graphResults = [];
+							for (key in result.stats) {
+								xlabels.push(key);
+								graphResults.push(result.stats[key]);
+							}
+							console.log(graphResults);
 							var ctx = document.getElementById("serverChart");
 							var myChart = new Chart(ctx, {
 							  type: 'line',
 							  data: {
-							    labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
+							    labels: xlabels,
 							    datasets: [{
-							      label: 'apples',
-							      data: [12, 19, 3, 17, 6, 3, 7],
+							      data: graphResults,
 							      backgroundColor: "rgba(153,255,51,0.4)"
-							    }, {
-							      label: 'oranges',
-							      data: [2, 29, 5, 5, 2, 3, 10],
-							      backgroundColor: "rgba(255,153,0,0.4)"
 							    }]
 							  }
 							});
