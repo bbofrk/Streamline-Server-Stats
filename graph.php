@@ -88,7 +88,7 @@
 		$(function(){
 			$(".dropdown-menu li a").on('click', function() {
 				var selectedName = $(this).text();
-				//make sure that the selection shows up
+				//make sure that the selection shows up as selected
 				$(".btn:first-child").text(selectedName);
 				$(".btn:first-child").val(selectedName);
 				//ajax call
@@ -109,7 +109,6 @@
 								xlabels.push(key);
 								graphResults.push(result.stats[key]);
 							}
-							console.log(graphResults);
 							var ctx = document.getElementById("serverChart");
 							var myChart = new Chart(ctx, {
 							  type: 'line',
