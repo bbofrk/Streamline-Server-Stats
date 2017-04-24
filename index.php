@@ -115,6 +115,7 @@
 							  data: {
 							    labels: xlabels,
 							    datasets: [{
+										label: '',
 							      data: graphResults,
 							      backgroundColor: "rgba(153,255,51,0.4)"
 							    }]
